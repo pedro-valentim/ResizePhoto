@@ -4,8 +4,7 @@ import os
 from PIL import Image
 from StringIO import StringIO
 from pymongo import MongoClient
-from bson.objectid import ObjectId
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory
 
 app = Flask(__name__)
 client = MongoClient('localhost', 27017)
@@ -43,17 +42,18 @@ def resize_images():
             # create empty document for insertion in image collection
             img_document = {
                 "image_url": img_url,
-                "resized_images_list": {}
+                "resized_images_dict": {}
             }
             # loop over sizes
             for label, size in sizes.items():
                 width, height = size
                 new_img = opened_img.resize((width, height), Image.ANTIALIAS)
                 filename = '{}_{}.{}'.format(name, label, ext)
-                img_document['resized_images_list'][label] = 'http://localhost:5000/images/{}'.format(filename)
+                img_document['resized_images_dict'][label] = 'http://localhost:5000/images/{}'.format(filename)
                 new_img.save(os.path.join(media_path, filename))
+                new_document = image_collection.insert_one(img_document)
 
-            print image_collection.insert_one(img_document).inserted_id
+            print new_document.inserted_id
 
 
 @app.route('/images/<path:path>')
@@ -63,10 +63,10 @@ def images(path):
 
 @app.route('/result.json')
 def list_images():
-    files = list(image_collection.find().sort("_id", 1))
-    return jsonify({"images": files})
+    files = list(image_collection.find({}, {'_id': False, 'image_url': False}).sort("_id", 1))
+    return jsonify({"images": [file['resized_images_dict'] for file in files]})
 
 
 if __name__ == '__main__':
-    resize_images()
+    # resize_images()
     app.run(debug=True, host='0.0.0.0')
