@@ -9,7 +9,6 @@ from flask import Flask, jsonify, send_from_directory
 app = Flask(__name__)
 client = MongoClient('localhost', 27017)
 db = client.resizephoto_db
-image_collection = db.image_collection
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 media_path = os.path.join(app_dir, 'images/')
@@ -30,7 +29,7 @@ def resize_images():
         # get the image's url
         img_url = img['url']
         # search for already resized images with this url on MongoDB
-        img_document = image_collection.find_one({u'img_url': img_url})
+        img_document = db.image_collection.find_one({u'image_url': img_url})
         # if nothing was found we should do the conversions and save at the end
         if img_document is None:
             # make a request to img's url in order to get its content later
@@ -51,9 +50,8 @@ def resize_images():
                 filename = '{}_{}.{}'.format(name, label, ext)
                 img_document['resized_images_dict'][label] = 'http://localhost:5000/images/{}'.format(filename)
                 new_img.save(os.path.join(media_path, filename))
-                new_document = image_collection.insert_one(img_document)
 
-            print new_document.inserted_id
+            db.image_collection.insert_one(img_document)
 
 
 @app.route('/images/<path:path>')
@@ -63,7 +61,7 @@ def images(path):
 
 @app.route('/result.json')
 def list_images():
-    files = list(image_collection.find({}, {'_id': False, 'image_url': False}).sort("_id", 1))
+    files = list(db.image_collection.find({}, {'_id': False, 'image_url': False}).sort("_id", 1))
     return jsonify({"images": [file['resized_images_dict'] for file in files]})
 
 
