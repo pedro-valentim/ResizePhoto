@@ -1,3 +1,6 @@
+# Resized Images
+app/images/*
+
 # Python bytecode:
 *.py[co]
 
