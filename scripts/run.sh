@@ -1,16 +1,14 @@
 #!/bin/bash
 set -e
 
-export MONGODB_HOST=db
-export MONGODB_PORT=27017
-
-echo "---> Waiting for MongoDB";
+echo -n "---> Waiting for MongoDB";
 while ! nc -z $MONGODB_HOST $MONGODB_PORT;
 do
-	echo ".";
-	sleep 2;
+	echo -n ".";
+	sleep 1;
 done;
 
+echo "";
 echo "---> Running Resizing"
 python -u /app/resize.py
 

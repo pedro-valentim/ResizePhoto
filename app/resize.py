@@ -1,16 +1,22 @@
 # coding: utf-8
-import requests
 import os
+import requests
 from PIL import Image
 from pymongo import MongoClient
 from StringIO import StringIO
 
-client = MongoClient('db', 27017)
+
+FLASK_BIND_PORT = int(os.environ.get('FLASK_BIND_PORT', '5000'))
+
+mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
+mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
+client = MongoClient(mongodb_host, mongodb_port)
 db = client.resizephoto_db
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 media_path = os.path.join(app_dir, 'images/')
-url = u'http://54.152.221.29/images.json'
+url = os.environ.get('WEBSERVICE_ENDPOINT')
+
 sizes = {
     'small': (320, 240),
     'medium': (384, 288),
@@ -46,7 +52,10 @@ def resize_images():
                 width, height = size
                 new_img = opened_img.resize((width, height), Image.ANTIALIAS)
                 filename = '{}_{}.{}'.format(name, label, ext)
-                img_document['resized_images_dict'][label] = 'http://localhost:5000/images/{}'.format(filename)
+                img_document['resized_images_dict'][label] = 'http://localhost:{}/images/{}'.format(
+                    FLASK_BIND_PORT,
+                    filename
+                )
                 new_img.save(os.path.join(media_path, filename))
 
             print db.image_collection.insert_one(img_document).inserted_id

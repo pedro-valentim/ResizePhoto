@@ -4,12 +4,13 @@ from pymongo import MongoClient
 from flask import Flask, jsonify, send_from_directory, redirect, url_for
 from werkzeug.contrib.cache import MemcachedCache
 
+FLASK_BIND_PORT = int(os.environ.get('FLASK_BIND_PORT', '5000'))
+
 app = Flask(__name__)
 cache = MemcachedCache(['memcached:11211'])
 
 mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
 mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
-
 client = MongoClient(mongodb_host, mongodb_port)
 db = client.resizephoto_db
 
@@ -35,4 +36,4 @@ def images(path):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=FLASK_BIND_PORT)

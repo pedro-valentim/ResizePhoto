@@ -1,7 +1,7 @@
 web:
   build: .
   ports:
-    - "5000:5000"
+    - "${FLASK_BIND_PORT}:${FLASK_BIND_PORT}"
   volumes:
     - ./app:/app
   links:
@@ -10,6 +10,11 @@ web:
   command: /bin/bash -c /scripts/run.sh
   volumes:
     - /data/resizephoto/images:/app/images
+  environment:
+    - MONGODB_HOST=$MONGODB_HOST
+    - MONGODB_PORT=$MONGODB_PORT
+    - FLASK_BIND_PORT=$FLASK_BIND_PORT
+    - WEBSERVICE_ENDPOINT=$WEBSERVICE_ENDPOINT
 
 db:
   image: mongo:3.0.15
