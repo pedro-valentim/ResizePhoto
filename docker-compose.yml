@@ -7,10 +7,14 @@ web:
   links:
     - db
     - memcached
-  command: ["python", "-u", "run.py"]
+  command: /bin/bash -c /scripts/run.sh
+  volumes:
+    - /data/resizephoto/images:/app/images
 
 db:
   image: mongo:3.0.15
+  volumes:
+    - /data/resizephoto/data/db:/data/db
 
 memcached:
   image: memcached:1.5.3

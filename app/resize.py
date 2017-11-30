@@ -46,12 +46,11 @@ def resize_images():
                 width, height = size
                 new_img = opened_img.resize((width, height), Image.ANTIALIAS)
                 filename = '{}_{}.{}'.format(name, label, ext)
-                img_document['resized_images_dict'][label] = 'http://localhost:8000/images/{}'.format(filename)
+                img_document['resized_images_dict'][label] = 'http://localhost:5000/images/{}'.format(filename)
                 new_img.save(os.path.join(media_path, filename))
 
             print db.image_collection.insert_one(img_document).inserted_id
 
 
 if __name__ == '__main__':
-    print u'===== RESIZING START ====='
     resize_images()

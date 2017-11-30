@@ -8,7 +8,7 @@ app = Flask(__name__)
 cache = MemcachedCache(['memcached:11211'])
 
 mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
-mongodb_port = os.environ.get('MONGODB_PORT', 27017)
+mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
 
 client = MongoClient(mongodb_host, mongodb_port)
 db = client.resizephoto_db
