@@ -1,11 +1,16 @@
 web:
   build: .
-  command: python -u run.py
   ports:
-    - "8000:8000"
+    - "5000:5000"
   volumes:
     - ./app:/app
   links:
     - db
+    - memcached
+  command: ["python", "-u", "run.py"]
+
 db:
   image: mongo:3.0.15
+
+memcached:
+  image: memcached:1.5.3
