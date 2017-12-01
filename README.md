@@ -10,7 +10,7 @@ Finally, write a Webservice endpoint, which should use a non-relational
 database(MongoDB preferred) and list (in JSON format) all ten photos with their
 respective formats, providing their URLs.
 
-Steps to build/run app
+## Steps to build/run app
 --------------------
 
 - First of all, install [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/).
@@ -26,6 +26,14 @@ Application now should be up and running on *localhost:5000*
 
 - In order to know if app is already up and running, this is the command:
 
+```sh
+docker logs -f resizephoto_web
 ```
-docker logs -f `docker ps | grep "resizephoto_web:latest" | awk '{ print $1 }'`
+
+## Testing
+--------------------
+
+- Running tests
+```sh
+ docker exec -it resizephoto_web pytest /tests/test.py
 ```
