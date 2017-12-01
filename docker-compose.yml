@@ -1,4 +1,5 @@
 web:
+  container_name: resizephoto_web
   build: .
   ports:
     - "${FLASK_BIND_PORT}:${FLASK_BIND_PORT}"
@@ -15,11 +16,14 @@ web:
     - MONGODB_PORT=$MONGODB_PORT
     - FLASK_BIND_PORT=$FLASK_BIND_PORT
     - WEBSERVICE_ENDPOINT=$WEBSERVICE_ENDPOINT
+    - PYTHONPATH=$PYTHONPATH
 
 db:
+  container_name: resizephoto_db
   image: mongo:3.0.15
   volumes:
     - /data/resizephoto/data/db:/data/db
 
 memcached:
+  container_name: resizephoto_memcached
   image: memcached:1.5.3
