@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 import requests
+import json
 from PIL import Image
 from pymongo import MongoClient
 from StringIO import StringIO
@@ -15,7 +16,7 @@ db = client.resizephoto_db
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 media_path = os.path.join(app_dir, 'images/')
-url = os.environ.get('WEBSERVICE_ENDPOINT')
+WEBSERVICE_ENDPOINT = os.environ.get('WEBSERVICE_ENDPOINT')
 
 SIZES = {
     'small': (320, 240),
@@ -25,6 +26,10 @@ SIZES = {
 
 
 class Resizer(object):
+
+    def __init__(self, webservice_endpoint=WEBSERVICE_ENDPOINT, json=None):
+        self.webservice_endpoint = webservice_endpoint
+        self.raw_json = json
 
     @classmethod
     def create_document(cls, img_url):
@@ -52,10 +57,12 @@ class Resizer(object):
 
         return db.image_collection.insert_one(img_document).inserted_id
 
-    @classmethod
-    def resize_images(cls):
-        response = requests.get(url)
-        images = response.json()['images']
+    def resize_images(self):
+        if self.raw_json is None:
+            response = requests.get(self.webservice_endpoint)
+            images = response.json()['images']
+        else:
+            images = json.loads(self.raw_json)['images']
 
         # loop over all images from specified endpoint
         for img in images:
@@ -66,9 +73,10 @@ class Resizer(object):
             print('-------> Using existing document - {} (id)'.format(img_document['_id']))
             # if nothing was found we should do the conversions and save at the end
             if img_document is None:
-                inserted_id = cls.create_document(img_url)
+                inserted_id = Resizer.create_document(img_url)
                 print('-------> Created a new document - {} (id)'.format(inserted_id))
 
 
 if __name__ == '__main__':
-    Resizer.resize_images()
+    resizer = Resizer()
+    resizer.resize_images()
