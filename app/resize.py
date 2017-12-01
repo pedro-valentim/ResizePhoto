@@ -70,11 +70,13 @@ class Resizer(object):
             img_url = img['url']
             # search for already resized images with this url on MongoDB
             img_document = db.image_collection.find_one({u'image_url': img_url})
-            print('-------> Using existing document - {} (id)'.format(img_document['_id']))
+
             # if nothing was found we should do the conversions and save at the end
             if img_document is None:
                 inserted_id = Resizer.create_document(img_url)
                 print('-------> Created a new document - {} (id)'.format(inserted_id))
+            else:
+                print('-------> Using existing document - {} (id)'.format(img_document['_id']))
 
 
 if __name__ == '__main__':
