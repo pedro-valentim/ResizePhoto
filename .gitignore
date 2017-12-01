@@ -2,7 +2,7 @@
 app/images/*
 
 # PyTest Cache
-app/.cache/
+.cache/
 
 # Python bytecode:
 *.py[co]
