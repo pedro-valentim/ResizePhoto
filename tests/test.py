@@ -6,7 +6,7 @@ from pymongo import MongoClient
 mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
 mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
 client = MongoClient(mongodb_host, mongodb_port)
-db = client.resizephoto_db
+db = client.resizephoto_test_db
 
 
 def tests_json_with_one_image():
@@ -29,7 +29,6 @@ def tests_json_with_one_image():
 def tests_creation_skip_with_repeated_url():
     img_url = 'http://via.placeholder.com/640x480/fcfcfc/400.jpg'
     document = db.image_collection.find_one({u'image_url': img_url})
-    document_id = document['_id']
 
     resizer = Resizer(json='''{
       "images": [

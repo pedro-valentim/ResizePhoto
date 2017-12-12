@@ -5,6 +5,7 @@ import json
 from PIL import Image
 from pymongo import MongoClient
 from StringIO import StringIO
+from werkzeug.contrib.cache import MemcachedCache
 
 
 FLASK_BIND_PORT = int(os.environ.get('FLASK_BIND_PORT', '5000'))
@@ -13,6 +14,8 @@ mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
 mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
 client = MongoClient(mongodb_host, mongodb_port)
 db = client.resizephoto_db
+
+cache = MemcachedCache(['memcached:11211'])
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 media_path = os.path.join(app_dir, 'images/')
@@ -77,6 +80,13 @@ class Resizer(object):
                 print('-------> Created a new document - {} (id)'.format(inserted_id))
             else:
                 print('-------> Using existing document - {} (id)'.format(img_document['_id']))
+
+    def get_json(self):
+        files = self.get_image_list()
+        return json.dumps({"images": [file['resized_images_dict'] for file in files]})
+
+    def get_image_list(self):
+        return list(db.image_collection.find({}, {'_id': False, 'image_url': False}).sort("_id", 1))
 
 
 if __name__ == '__main__':

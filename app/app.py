@@ -1,22 +1,23 @@
 # coding: utf-8
 import os
 from pymongo import MongoClient
-from flask import Flask, jsonify, send_from_directory, redirect, url_for
-from werkzeug.contrib.cache import MemcachedCache
+from flask import Flask, send_from_directory, redirect, url_for
+# import the flask extension
+from flask.ext.cache import Cache
+from resize import Resizer
 
 FLASK_BIND_PORT = int(os.environ.get('FLASK_BIND_PORT', '5000'))
 
 app = Flask(__name__)
-cache = MemcachedCache(['memcached:11211'])
+
+# setting cache on Flask app
+app.config["CACHE_TYPE"] = "memcached"
+app.cache = Cache(app)
 
 mongodb_host = os.environ.get('MONGODB_HOST', 'localhost')
 mongodb_port = int(os.environ.get('MONGODB_PORT', '27017'))
 client = MongoClient(mongodb_host, mongodb_port)
 db = client.resizephoto_db
-
-
-def get_files_list():
-    return list(db.image_collection.find({}, {'_id': False, 'image_url': False}).sort("_id", 1))
 
 
 @app.route('/')
@@ -26,8 +27,7 @@ def index():
 
 @app.route('/result.json')
 def list_images():
-    files = get_files_list()
-    return jsonify({"images": [file['resized_images_dict'] for file in files]})
+    return Resizer().get_json()
 
 
 @app.route('/images/<path:path>')
